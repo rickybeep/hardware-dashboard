@@ -2,13 +2,16 @@
 <html>
 <head>
     <title>Hardware Monitoring Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to Your Dashboard</h1>
-    <p>This is your first basic dashboard setup.</p>
+    <h1>Hardware Monitoring Dashboard</h1>
+    <div id="data-container">
+        <h2>Latest Hardware Stats</h2>
+        <ul id="hardware-data"></ul>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
-
-
