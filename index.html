@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hardware Monitoring Dashboard</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore.js"></script>
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <h1>Hardware Monitoring Dashboard</h1>
   <div id="dashboard">
-    <p>Loading latest hardware stats...</p>
+    <h3>Latest Hardware Stats</h3>
+    <p>Loading...</p>
   </div>
+
+  <!-- Include Firebase App SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+  <!-- Include Firebase Firestore SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
+  <!-- Your Custom JavaScript -->
+  <script src="script.js"></script>
 </body>
 </html>
