@@ -15,15 +15,19 @@ firebase.initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = firebase.firestore();
 
-// Function to fetch all collections and display their latest logs
+// Function to dynamically fetch all collections and display their latest logs
 async function fetchAllCollections() {
   try {
-    const collections = await db.listCollections(); // Fetch all collections
+    // Dynamically list all collections in Firestore
+    const collections = await db.listCollections();
+
     const dashboard = document.getElementById("dashboard");
-    dashboard.innerHTML = ""; // Clear existing content
+    dashboard.innerHTML = ""; // Clear previous dashboard content
 
     for (const collection of collections) {
       const collectionName = collection.id;
+
+      // Fetch the latest document from each collection
       const snapshot = await db
         .collection(collectionName)
         .orderBy("timestamp", "desc")
@@ -32,7 +36,7 @@ async function fetchAllCollections() {
 
       snapshot.forEach((doc) => {
         const log = doc.data();
-        dashboard.innerHTML += createLogHTML(collectionName, log);
+        dashboard.innerHTML += createLogHTML(collectionName, log); // Add log to dashboard
       });
     }
   } catch (error) {
@@ -59,7 +63,5 @@ function createLogHTML(collectionName, log) {
   `;
 }
 
-// Fetch and display all collections
+// Fetch and display all collections on load
 fetchAllCollections();
-
-// Optional: Add real-time updates (if required)
