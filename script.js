@@ -10,13 +10,16 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+console.log("Initializing Firebase...");
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Firestore
 const db = firebase.firestore();
+console.log("Firestore initialized.");
 
 // Function to fetch the latest hardware log
 async function fetchLatestLog() {
+  console.log("Fetching the latest hardware log...");
   try {
     // Get the latest entry from Firestore
     const snapshot = await db.collection("hwinfo_logs")
@@ -24,8 +27,10 @@ async function fetchLatestLog() {
                              .limit(1)
                              .get();
 
+    console.log("Snapshot received:", snapshot);
     snapshot.forEach(doc => {
       const log = doc.data();
+      console.log("Latest log data:", log);
       displayLog(log); // Pass the data to a function that updates the UI
     });
   } catch (error) {
@@ -35,7 +40,12 @@ async function fetchLatestLog() {
 
 // Function to display hardware stats
 function displayLog(log) {
+  console.log("Displaying log data on the dashboard...");
   const dashboard = document.getElementById("dashboard");
+  if (!dashboard) {
+    console.error("Dashboard element not found!");
+    return;
+  }
   dashboard.innerHTML = `
     <h3>Latest Hardware Stats</h3>
     <p><strong>CPU Temp:</strong> ${log["CPU Temp [°C]"]}°C</p>
@@ -52,15 +62,19 @@ function displayLog(log) {
 }
 
 // Real-time listener for Firestore updates
+console.log("Setting up Firestore listener...");
 db.collection("hwinfo_logs")
   .orderBy("timestamp", "desc")
   .limit(1)
   .onSnapshot(snapshot => {
+    console.log("Real-time Firestore update received:", snapshot);
     snapshot.forEach(doc => {
       const log = doc.data();
+      console.log("Real-time log data:", log);
       displayLog(log); // Update the UI when new data arrives
     });
   });
 
 // Initial call to fetch the latest log
 fetchLatestLog();
+console.log("Initial log fetch triggered.");
