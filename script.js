@@ -5,8 +5,8 @@ const firebaseConfig = {
   projectId: "hardware-monitoring-15136",
   storageBucket: "hardware-monitoring-15136.firebasestorage.app",
   messagingSenderId: "915667032342",
-  appId: "1:915667032342:web:956291ba18619529215837",
-  measurementId: "G-C8YFVLX0LQ"
+  appId: "1:915667032342:web:18454ca839d3c541215837",
+  measurementId: "G-XNW11F9B9C"
 };
 
 // Initialize Firebase
