@@ -33,28 +33,27 @@ function createLogHTML(collectionName, log) {
   `;
 }
 
-// Function to fetch all collections dynamically
+// Function to fetch collections from metadata
 async function fetchAllCollections() {
   try {
-    console.log("Fetching all collections...");
+    console.log("Fetching collections from metadata...");
+    const metadataDoc = await db.collection("metadata").doc("collections").get();
 
-    // Dynamically list all collections in Firestore
-    const collections = await db.listCollections();
-    console.log("Collections found:", collections);
-
-    const dashboard = document.getElementById("dashboard");
-    dashboard.innerHTML = ""; // Clear previous dashboard content
-
-    if (collections.length === 0) {
-      dashboard.innerHTML = "<p>No collections found.</p>";
+    if (!metadataDoc.exists) {
+      console.error("No metadata found.");
+      document.getElementById("dashboard").innerHTML = "<p>No data available.</p>";
       return;
     }
 
-    for (const collection of collections) {
-      const collectionName = collection.id;
+    const collections = metadataDoc.data().list || [];
+    console.log("Collections:", collections);
+
+    const dashboard = document.getElementById("dashboard");
+    dashboard.innerHTML = ""; // Clear the dashboard
+
+    for (const collectionName of collections) {
       console.log("Fetching latest log for collection:", collectionName);
 
-      // Fetch the latest document from each collection
       const snapshot = await db
         .collection(collectionName)
         .orderBy("timestamp", "desc")
@@ -68,16 +67,15 @@ async function fetchAllCollections() {
 
       snapshot.forEach((doc) => {
         const log = doc.data();
-        console.log("Log data for", collectionName, log);
         dashboard.innerHTML += createLogHTML(collectionName, log);
       });
     }
   } catch (error) {
     console.error("Error fetching collections:", error);
-    const dashboard = document.getElementById("dashboard");
-    dashboard.innerHTML = "<p>Error loading data. Check console for details.</p>";
+    document.getElementById("dashboard").innerHTML =
+      "<p>Error loading data. Check console for details.</p>";
   }
 }
 
-// Initial call to fetch all collections
+// Fetch and display data on page load
 fetchAllCollections();
