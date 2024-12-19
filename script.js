@@ -33,8 +33,8 @@ function createLogHTML(collectionName, log) {
   `;
 }
 
-// Function to fetch collections from metadata
-async function fetchAllCollections() {
+// Function to fetch collections from metadata and set up real-time listeners
+async function setupRealtimeListeners() {
   try {
     console.log("Fetching collections from metadata...");
     const metadataDoc = await db.collection("metadata").doc("collections").get();
@@ -51,31 +51,34 @@ async function fetchAllCollections() {
     const dashboard = document.getElementById("dashboard");
     dashboard.innerHTML = ""; // Clear the dashboard
 
-    for (const collectionName of collections) {
-      console.log("Fetching latest log for collection:", collectionName);
-
-      const snapshot = await db
-        .collection(collectionName)
+    // Set up real-time listeners for each collection
+    collections.forEach((collectionName) => {
+      db.collection(collectionName)
         .orderBy("timestamp", "desc")
         .limit(1)
-        .get();
+        .onSnapshot((snapshot) => {
+          snapshot.forEach((doc) => {
+            const log = doc.data();
+            const existingSection = document.getElementById(`stats-${collectionName}`);
+            const newHTML = createLogHTML(collectionName, log);
 
-      if (snapshot.empty) {
-        dashboard.innerHTML += `<p>No data found for ${collectionName}.</p>`;
-        continue;
-      }
-
-      snapshot.forEach((doc) => {
-        const log = doc.data();
-        dashboard.innerHTML += createLogHTML(collectionName, log);
-      });
-    }
+            if (existingSection) {
+              existingSection.innerHTML = newHTML;
+            } else {
+              const section = document.createElement("div");
+              section.id = `stats-${collectionName}`;
+              section.innerHTML = newHTML;
+              dashboard.appendChild(section);
+            }
+          });
+        });
+    });
   } catch (error) {
-    console.error("Error fetching collections:", error);
+    console.error("Error setting up real-time listeners:", error);
     document.getElementById("dashboard").innerHTML =
       "<p>Error loading data. Check console for details.</p>";
   }
 }
 
-// Fetch and display data on page load
-fetchAllCollections();
+// Set up real-time listeners on page load
+setupRealtimeListeners();
