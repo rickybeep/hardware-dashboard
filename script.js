@@ -9,36 +9,52 @@ const firebaseConfig = {
   measurementId: "G-XNW11F9B9C",
 };
 
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 // Initialize Firestore
 const db = firebase.firestore();
 
-// Function to fetch the latest hardware log
-async function fetchLatestLog() {
+// Function to fetch collection names from metadata
+async function fetchCollectionNames() {
+  try {
+    const metadataDoc = await db.collection("metadata").doc("collections").get();
+    if (metadataDoc.exists) {
+      return metadataDoc.data().list || [];
+    }
+    console.warn("No metadata/collections document found!");
+    return [];
+  } catch (error) {
+    console.error("Error fetching collection names:", error);
+    return [];
+  }
+}
+
+// Function to display hardware stats for a collection
+async function fetchAndDisplayCollection(collectionName) {
   try {
     const snapshot = await db
-      .collection("hwinfo_logs")
+      .collection(collectionName)
       .orderBy("timestamp", "desc")
       .limit(1)
       .get();
 
     snapshot.forEach((doc) => {
       const log = doc.data();
-      displayLog(log); // Pass the data to update the UI
+      displayLog(collectionName, log);
     });
   } catch (error) {
-    console.error("Error fetching log:", error);
+    console.error(`Error fetching data for ${collectionName}:`, error);
   }
 }
 
-// Function to display hardware stats
-function displayLog(log) {
+// Function to display a single computer's stats
+function displayLog(collectionName, log) {
   const dashboard = document.getElementById("dashboard");
-  dashboard.innerHTML = `
-    <h3>Latest Hardware Stats</h3>
-    <p><strong>Computer ID:</strong> ${log.computer_id}</p>
+  const section = document.createElement("div");
+  section.innerHTML = `
+    <h3>${collectionName} Stats</h3>
     <p><strong>CPU Temp:</strong> ${log["CPU Temp [°C]"]}°C</p>
     <p><strong>SSD Temp:</strong> ${log["SSD Temp [°C]"]}°C</p>
     <p><strong>GPU1 Temp:</strong> ${log["GPU1 Temp [°C]"]}°C</p>
@@ -50,19 +66,20 @@ function displayLog(log) {
     <p><strong>GPU2 Usage:</strong> ${log["GPU2 Usage [%]"]}%</p>
     <p><strong>Timestamp:</strong> ${log.timestamp}</p>
   `;
+  dashboard.appendChild(section);
 }
 
+// Main function to fetch and display all collections
+async function fetchAllCollections() {
+  try {
+    const collectionNames = await fetchCollectionNames();
+    for (const collectionName of collectionNames) {
+      await fetchAndDisplayCollection(collectionName);
+    }
+  } catch (error) {
+    console.error("Error fetching all collections:", error);
+  }
+}
 
-// Real-time listener for Firestore updates
-db.collection("hwinfo_logs")
-  .orderBy("timestamp", "desc")
-  .limit(1)
-  .onSnapshot((snapshot) => {
-    snapshot.forEach((doc) => {
-      const log = doc.data();
-      displayLog(log); // Update the UI when new data arrives
-    });
-  });
-
-// Initial call to fetch the latest log
-fetchLatestLog();
+// Initial call
+fetchAllCollections();
