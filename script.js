@@ -38,7 +38,7 @@ function displayLog(log) {
   const dashboard = document.getElementById("dashboard");
   dashboard.innerHTML = `
     <h3>Latest Hardware Stats</h3>
-    <p><strong>Computer ID:</strong> ${log["computer_id"] || "N/A"}</p>
+    <p><strong>Computer ID:</strong> ${log.computer_id}</p>
     <p><strong>CPU Temp:</strong> ${log["CPU Temp [°C]"]}°C</p>
     <p><strong>SSD Temp:</strong> ${log["SSD Temp [°C]"]}°C</p>
     <p><strong>GPU1 Temp:</strong> ${log["GPU1 Temp [°C]"]}°C</p>
